@@ -3,6 +3,9 @@ using System.Collections;
 
 public class CardStats : MonoBehaviour {
 
+	public int minX;
+	public int maxX;
+
 	// Use this for initialization
 	void Start () {
 	

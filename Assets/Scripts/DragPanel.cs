@@ -58,23 +58,42 @@ public class DragPanel : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
 		Debug.Log (CardA + " is being dragged.");
 		Vector2 deltaMouse;
 		Vector2 currentMouse = Input.mousePosition;
+		//currentMouse = TwoCardClamp(currentMouse);
 		deltaMouse = initialMouse - currentMouse;
 		deltaMouse.y = 0; //locks things to the x axis
 
 		panelRectTransform.localPosition = (Vector2)panelRectTransform.localPosition - deltaMouse;
-		otherPanelRectTransform.localPosition = (Vector2)otherPanelRectTransform.localPosition + deltaMouse;
+		panelRectTransform.localPosition = TwoCardClamp(panelRectTransform.localPosition, CardA);
+		otherPanelRectTransform.localPosition = (Vector2)otherPanelRectTransform.localPosition + deltaMouse; //set position of RightCard
+		otherPanelRectTransform.localPosition = TwoCardClamp(otherPanelRectTransform.localPosition, CardB); //clamp position of RightCard
 
 		initialMouse = Input.mousePosition;
 
 	}
 
-	public void TwoCardClamp (){
+	public Vector2 TwoCardClamp (Vector2 mousePos, GameObject card){
+		Debug.Log("Mouse Position: " + mousePos.x + " " + mousePos.y);
 		//take the incoming mouse position, compare the pointer with the location of the cards, and keep everything within bounds.
 		//Determine the positions of the cards. LeftCard cannot go further left. RightCard cannot go further right. Neither card can cross the middle boundary.
+		float clampedX = Mathf.Clamp (mousePos.x, card.GetComponent<CardStats>().minX, card.GetComponent<CardStats>().maxX);
+		float clampedY = mousePos.y;
+		
+		
+		Vector2 newPointerPosition = new Vector2 (clampedX, clampedY);
+		Debug.Log("Pointer Position: " + newPointerPosition.x + " " + newPointerPosition.y);
+		Debug.Log("Min and Max X values: " + card.GetComponent<CardStats>().minX + " " + card.GetComponent<CardStats>().maxX);
+		return newPointerPosition;
+
 	}
 
 	public void UIEndDrag(GameObject card){
 		panelRectTransform.localScale = initialScale;
+		if(card.transform.position.x == GameObject.Find("Center").transform.position.x)
+		{
+			DisplayManager displayManager = GameObject.FindObjectOfType<DisplayManager>();
+			displayManager.DisplayMessage(card.GetComponentInChildren<Text>().text + " is the WINNER!");
+			//Debug.Log (card + "Wins!");
+		}
 	}
 	
 	public void OnPointerDown (PointerEventData data) {
